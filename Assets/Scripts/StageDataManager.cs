@@ -42,7 +42,7 @@ public class StageDataManager : MonoBehaviour
 		//These should be initialized After Every Round
 		public int diceNum;
 		public List<string> areaCards;
-		List<int> buildingCards;
+		public List<string> buildingCards;
 
 	#endregion
 

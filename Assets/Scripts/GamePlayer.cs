@@ -12,6 +12,7 @@ public class GamePlayer : MonoBehaviour
 
 	bool[] IsStepFinished;
 
+	[Tooltip("Steps that are using in your game. After finishing current step, the next step will be appeared in the screen.")]
 	[SerializeField]
 	List<GameObject> StepMaterials;
 
@@ -46,7 +47,8 @@ public class GamePlayer : MonoBehaviour
 
 					break;
 				case 2:
-					Step2();
+					HandOutBuildingCards();
+					ChooseBuildingCards();
 
 					break;
 				case 3:
@@ -55,9 +57,14 @@ public class GamePlayer : MonoBehaviour
 
 					break;
 				case 4:
+					Step4();
 
 					break;
 			}
+		}
+		else
+		{
+			gameObject.SetActive(false);
 		}
 	}
 
@@ -82,6 +89,8 @@ public class GamePlayer : MonoBehaviour
 		{
 			if (hit.collider != null && hit.transform.name == Dice.name)
 			{
+				Debug.Log(StageData.CurrentRound + "/" + StageData.MaxRound);
+
 				/*Game Logic*/
 				StageData.diceNum = Random.Range(1, 7);
 
@@ -97,9 +106,35 @@ public class GamePlayer : MonoBehaviour
 
 	[Header("Step2 Materials")]
 	[SerializeField]
-	GameObject PassStep;
+	GameObject BuildingCardPrefab;
+	[SerializeField]
+	Transform BuildingCardHouse;
 
-	void Step2()
+	bool IsBuildingCardHanded = false;
+
+	void HandOutBuildingCards()
+	{
+		if(!IsBuildingCardHanded)
+		{
+			for(int x = -15; x <= 15; x+= 3)
+			{
+				for(int y = -6; y <= 6; y += 3)
+				{
+					//spawn building cards | 16types
+					int CardNum = Random.Range(1, 17);
+					GameObject BuildingCard = Instantiate(BuildingCardPrefab, new Vector3(x, y, 0), Quaternion.identity, BuildingCardHouse.transform) as GameObject;
+					BuildingCard.GetComponentInChildren<TextMeshPro>().text = CardNum.ToString();
+					BuildingCard.name = CardNum.ToString();
+				}
+			}
+
+			//타일 세부 설정, 랜덤 발급
+
+			IsBuildingCardHanded = true;
+		}
+	}
+
+	void ChooseBuildingCards()
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		origin = ray.origin;
@@ -109,8 +144,25 @@ public class GamePlayer : MonoBehaviour
 
 		if (Input.GetMouseButtonDown(0))
 		{
-			if (hit.collider != null && hit.collider.name == PassStep.name)
-				ProcessFinishStep(1);
+			if (hit.collider != null)
+			{
+				if (hit.collider.tag == "BuildingCard")
+				{
+					StageData.buildingCards.Add(hit.collider.name);
+					Destroy(hit.collider.gameObject);
+					Debug.Log(hit.collider.name);
+
+					if (StageData.buildingCards.Count >= StageData.diceNum)
+					{
+						ProcessFinishStep(1);
+						
+						for(int i = 0; i < BuildingCardHouse.childCount; i++)
+						{
+							Destroy(BuildingCardHouse.GetChild(i).gameObject);
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -119,25 +171,28 @@ public class GamePlayer : MonoBehaviour
 	[SerializeField]
 	GameObject AreaCardPrefab;
 
+	[SerializeField]
+	Transform AreaCardHouse;
+
 	Vector2[] AreaCardPoses = new Vector2[4] { new Vector2(-4.0f, 3.0f), new Vector2(4.0f, 3.0f),
 																			new Vector2(-4.0f, -5.0f), new Vector2(4.0f, -5.0f)};
 	string[] AreaCardColor = new string[6] { "A", "A", "B", "B", "C", "C"};
 
-	bool IsCardHanded = false;
+	bool IsAreaCardHanded = false;
 
 	Dictionary<string, int> AreaCardAndClick = new Dictionary<string, int>();
 	void HandOutAreaCards()
 	{
-		if(!IsCardHanded)
+		if(!IsAreaCardHanded)
 		{
 			//Debug.Log("Hand Out Area Cards");
 
 			for (int i = 0; i < 4; i++)
 			{
-				GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, StepMaterials[2].transform)
+				GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, AreaCardHouse)
 														as GameObject;
 
-				// ※Prefab -> Front: Active, Back: Inactive
+				//※Prefab -> Front: Active, Back: Inactive
 				TextMeshPro FrontCardTMP = AreaCard.transform.Find("Front").GetComponentInChildren<TextMeshPro>();
 				TextMeshPro BackCardTMP = AreaCard.transform.Find("Back").GetComponentInChildren<TextMeshPro>();
 
@@ -146,7 +201,7 @@ public class GamePlayer : MonoBehaviour
 				//TODO: 현재 최악 반복: 1+15+14+13 = 43 vs 리스트에서 하나씩 뽑기 -> 비교 후 결정
 				do
 				{
-					AreaCardNumber = AreaCardColor[StageData.CurrentRound] + Random.Range(1, 16);
+					AreaCardNumber = AreaCardColor[StageData.CurrentRound-1] + Random.Range(1, 16);
 					//Debug.Log(i + AreaCardNumber);
 				} while (StageData.areaCards.Contains(AreaCardNumber));
 
@@ -163,7 +218,7 @@ public class GamePlayer : MonoBehaviour
 				StageData.areaCards.Add(AreaCardNumber);
 			}
 
-			IsCardHanded = true;
+			IsAreaCardHanded = true;
 		}
 	}
 
@@ -171,6 +226,8 @@ public class GamePlayer : MonoBehaviour
 
 	[SerializeField]
 	Transform Stamp;
+
+	[Tooltip("Position that you want to put Stamp back")]
 	[SerializeField]
 	Transform InitialStampPos;
 
@@ -239,6 +296,14 @@ public class GamePlayer : MonoBehaviour
 								StageData.pickedAreaCards.Add(hits[1].collider.name);
 
 								ProcessFinishStep(2);
+
+								for (int k = 0; k < AreaCardHouse.childCount; k++)
+								{
+									Destroy(AreaCardHouse.GetChild(k).gameObject);
+								}
+
+								Stamp.position = InitialStampPos.position;
+								isHoldingStamp = false;
 							}
 						}
 					}
@@ -255,7 +320,25 @@ public class GamePlayer : MonoBehaviour
 
 
 	[Header("Step4 Materials")]
-	GameObject CityBoard;
+	[SerializeField]
+	GameObject PassStep;
+	void Step4()
+	{
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		origin = ray.origin;
+		dir = ray.direction;
+
+		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			if (hit.collider != null && hit.collider.name == PassStep.name)
+			{
+				ProcessFinishStep(3);
+				ProcessFinishRound();
+			}
+		}
+	}
 
 
 
@@ -290,6 +373,29 @@ public class GamePlayer : MonoBehaviour
 			IsStepFinished[i] = false;
 		}
 
+		StageData.buildingCards.Clear();
+		StageData.areaCards.Clear();
+		AreaCardAndClick.Clear();
+
+		IsBuildingCardHanded = false;
+		IsAreaCardHanded = false;
+
 		StageData.CurrentRound++;
+	}
+
+	/*For GameTest*/
+	void PassStepForTest(int i)
+	{
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		origin = ray.origin;
+		dir = ray.direction;
+
+		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			if (hit.collider != null && hit.collider.name == PassStep.name)
+				ProcessFinishStep(i);
+		}
 	}
 }

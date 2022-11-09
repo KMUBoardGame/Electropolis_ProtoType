@@ -138,7 +138,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &27049057
 Transform:
   m_ObjectHideFlags: 0
@@ -152,8 +152,39 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 754750062}
-  - {fileID: 1563429725}
+  - {fileID: 149077502}
   m_Father: {fileID: 2111408615}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &149077501
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 149077502}
+  m_Layer: 0
+  m_Name: BuildingCardHouse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &149077502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149077501}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 27049057}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &196917127
@@ -1646,6 +1677,7 @@ MonoBehaviour:
   pickedAreaCards: []
   diceNum: 0
   areaCards: []
+  buildingCards: []
 --- !u!4 &1302104743
 Transform:
   m_ObjectHideFlags: 0
@@ -1736,6 +1768,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 196917128}
+  - {fileID: 1563429725}
   m_Father: {fileID: 2111408615}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1795,13 +1828,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1563429724}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5.8, y: 4.8405, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.1, y: 0.1, z: 0}
+  m_LocalScale: {x: 7.295716, y: 7.0250177, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1636466526}
-  m_Father: {fileID: 27049057}
+  m_Father: {fileID: 1424074498}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1563429726
@@ -2153,7 +2186,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1699125978
 Transform:
   m_ObjectHideFlags: 0
@@ -2169,8 +2202,40 @@ Transform:
   - {fileID: 1616729849}
   - {fileID: 1073186835}
   - {fileID: 654567347}
+  - {fileID: 1787909446}
   m_Father: {fileID: 2111408615}
   m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1787909445
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1787909446}
+  m_Layer: 0
+  m_Name: AreaCardHouse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1787909446
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787909445}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1699125978}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1991742916
 GameObject:
@@ -2309,10 +2374,13 @@ MonoBehaviour:
   - {fileID: 1699125977}
   - {fileID: 1424074497}
   Dice: {fileID: 366885893}
-  PassStep: {fileID: 1563429724}
+  BuildingCardPrefab: {fileID: 3518687081852928654, guid: 9f08d2293a123b745a092f41c7cfb4c3, type: 3}
+  BuildingCardHouse: {fileID: 149077502}
   AreaCardPrefab: {fileID: 3013741152821568970, guid: bb8db9d943a00e94795d5588dba32a61, type: 3}
+  AreaCardHouse: {fileID: 1787909446}
   Stamp: {fileID: 1073186835}
   InitialStampPos: {fileID: 654567347}
+  PassStep: {fileID: 1563429724}
 --- !u!4 &2111408615
 Transform:
   m_ObjectHideFlags: 0
