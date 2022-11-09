@@ -12,7 +12,7 @@ public class StageDataManager : MonoBehaviour
 			get { return currentRound; }
 			set { currentRound = value; }
 		}
-		int maxRound;
+		int maxRound = 6;
 		public int MaxRound
 		{
 			get { return maxRound; }
@@ -33,7 +33,8 @@ public class StageDataManager : MonoBehaviour
 			get { return currentStep; }
 			set { currentStep = value; }
 		}
-		int maxStep;
+
+		int maxStep = 4;
 		public int MaxStep
 		{
 			get { return maxStep; }
@@ -49,9 +50,6 @@ public class StageDataManager : MonoBehaviour
 
 	private void Awake()
 	{
-		maxRound = 6;
-		maxStep = 4;
-
 		currentRound = 1;
 		currentStep = 1;
 

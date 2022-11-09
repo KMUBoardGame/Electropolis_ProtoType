@@ -2347,7 +2347,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2111408615}
-  - component: {fileID: 2111408614}
+  - component: {fileID: 2111408616}
   m_Layer: 0
   m_Name: GamePlayer
   m_TagString: Untagged
@@ -2355,32 +2355,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2111408614
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2111408613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5894ffcecb5461b4eba7363ae1e7de1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StageData: {fileID: 1302104742}
-  StepMaterials:
-  - {fileID: 1019106745}
-  - {fileID: 27049056}
-  - {fileID: 1699125977}
-  - {fileID: 1424074497}
-  Dice: {fileID: 366885893}
-  BuildingCardPrefab: {fileID: 3518687081852928654, guid: 9f08d2293a123b745a092f41c7cfb4c3, type: 3}
-  BuildingCardHouse: {fileID: 149077502}
-  AreaCardPrefab: {fileID: 3013741152821568970, guid: bb8db9d943a00e94795d5588dba32a61, type: 3}
-  AreaCardHouse: {fileID: 1787909446}
-  Stamp: {fileID: 1073186835}
-  InitialStampPos: {fileID: 654567347}
-  PassStep: {fileID: 1563429724}
 --- !u!4 &2111408615
 Transform:
   m_ObjectHideFlags: 0
@@ -2400,3 +2374,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2111408616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111408613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5894ffcecb5461b4eba7363ae1e7de1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StageData: {fileID: 1302104742}
+  StepMaterials:
+  - {fileID: 1019106745}
+  - {fileID: 27049056}
+  - {fileID: 1699125977}
+  - {fileID: 1424074497}
+  Dice: {fileID: 366885893}
+  BuildingCardPrefab: {fileID: 557632642075142269, guid: 2ae8fdc7fd3084a408ed851f5fc49ba3, type: 3}
+  BuildingCardHouse: {fileID: 149077502}
+  AreaCardPrefab: {fileID: 3013741152821568970, guid: bb8db9d943a00e94795d5588dba32a61, type: 3}
+  AreaCardHouse: {fileID: 1787909446}
+  Stamp: {fileID: 1073186835}
+  InitialStampPos: {fileID: 654567347}
+  PassStep: {fileID: 1563429724}
