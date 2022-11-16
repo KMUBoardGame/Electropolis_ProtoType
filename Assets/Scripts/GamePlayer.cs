@@ -39,7 +39,6 @@ public class GamePlayer : MonoBehaviour
 	#endregion
 
 
-	//TODO: 테스트용으로 step 2에 넣어둠 -> 추후 step 3으로 이동
 	private void Update()
 	{
 		if(StageData.CurrentRound <= StageData.MaxRound)
@@ -164,7 +163,7 @@ public class GamePlayer : MonoBehaviour
 				{
 					StageData.buildingCards.Add(hit.collider.name);
 					Destroy(hit.collider.gameObject);
-					Debug.Log(hit.collider.name);
+					//Debug.Log(hit.collider.name);
 
 					if (StageData.buildingCards.Count >= StageData.diceNum)
 					{
@@ -340,119 +339,120 @@ public class GamePlayer : MonoBehaviour
 
 	#endregion
 
+	#region Step 4
 
-	[Header("Step4 Materials")]
-	[SerializeField]
-	GameObject CityBuildingCardPrefab;
-	[SerializeField]
-	Transform CityBuildingCardHouse;
+		[Header("Step4 Materials")]
+		[SerializeField]
+		GameObject CityBuildingCardPrefab;
+		[SerializeField]
+		Transform CityBuildingCardHouse;
 
-	bool IsCityboardReady = false;
+		bool IsCityboardReady = false;
 
-	float CityBuldingCardSpace = 2.6f;
-	float TopStartPoint = 6.3f;
+		float CityBuldingCardSpace = 2.6f;
+		float TopStartPoint = 6.3f;
 
-	void HandOutCityBuildingCards()
-	{
-		if(!IsCityboardReady)
+		void HandOutCityBuildingCards()
 		{
-			int BuildingCount = StageData.buildingCards.Count;
-			int index = 0;
-
-
-			for(float y = TopStartPoint; y > TopStartPoint - CityBuldingCardSpace * BuildingCount; y -= CityBuldingCardSpace)
+			if(!IsCityboardReady)
 			{
-				//Debug.Log(index);
-
-				GameObject CityBuildingCard = Instantiate(CityBuildingCardPrefab, new Vector3(-12.0f, y, 0.0f), Quaternion.identity, CityBuildingCardHouse) as GameObject;
-
-				string BuildingCardNum = StageData.buildingCards[index];
-				CityBuildingCard.name = "CityBuildingCard" + BuildingCardNum;
-				CityBuildingCard.GetComponentInChildren<TextMeshPro>().text = BuildingCardNum;
-
-				index++;
-			}
+				int BuildingCount = StageData.buildingCards.Count;
+				int index = 0;
 
 
-			LeftCityBuildingCards = BuildingCount;
-
-			IsCityboardReady = true;
-		}
-	}
-
-	
-	int LeftCityBuildingCards;
-	bool IsHoldingCityBuildingCard;
-
-	Transform HoldingCityBuildingCard;
-	Vector3 HoldingCityBuildingCardInitialPos;
-
-	void PutCityBuildingCards()
-	{
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		origin = ray.origin;
-		dir = ray.direction;
-
-		RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir);
-
-		if (Input.GetMouseButtonDown(0))
-		{
-			for (int i = 0; i < hits.Length; i++)
-			{
-
-				if (hits[i].collider != null)
+				for(float y = TopStartPoint; y > TopStartPoint - CityBuldingCardSpace * BuildingCount; y -= CityBuldingCardSpace)
 				{
-					//Debug.Log(hits[i].collider.name + " " + IsHoldingCityBuildingCard);
+					//Debug.Log(index);
 
-					if (!IsHoldingCityBuildingCard)
+					GameObject CityBuildingCard = Instantiate(CityBuildingCardPrefab, new Vector3(-12.0f, y, 0.0f), Quaternion.identity, CityBuildingCardHouse) as GameObject;
+
+					string BuildingCardNum = StageData.buildingCards[index];
+					CityBuildingCard.name = "CityBuildingCard" + BuildingCardNum;
+					CityBuildingCard.GetComponentInChildren<TextMeshPro>().text = BuildingCardNum;
+
+					index++;
+				}
+
+				IsCityboardReady = true;
+			}
+		}
+
+
+		bool IsHoldingCityBuildingCard;
+
+		Transform HoldingCityBuildingCard;
+		Vector3 HoldingCityBuildingCardInitialPos;
+
+		void PutCityBuildingCards()
+		{
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			origin = ray.origin;
+			dir = ray.direction;
+
+			RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir);
+
+			if (Input.GetMouseButtonDown(0))
+			{
+				for (int i = 0; i < hits.Length; i++)
+				{
+
+					if (hits[i].collider != null)
 					{
-						if (hits[i].collider.tag == "CityBuildingCard")
+						//Debug.Log(hits[i].collider.name + " " + IsHoldingCityBuildingCard);
+
+						if (!IsHoldingCityBuildingCard)
 						{
-							HoldingCityBuildingCard = hits[i].collider.transform;
-							HoldingCityBuildingCardInitialPos = HoldingCityBuildingCard.position;
-
-							IsHoldingCityBuildingCard = true;
-						}
-					}
-					else
-					{
-						if (hits[i].collider.tag == "CityTile")
-						{
-							Debug.Log("Attach " + hits[i].collider.transform.parent.name);
-
-							//빌딩 타일에 붙이기
-							IsHoldingCityBuildingCard = false;
-
-							HoldingCityBuildingCard.transform.parent = hits[i].collider.transform.parent.transform;
-							HoldingCityBuildingCard.position = hits[i].collider.transform.position;
-							HoldingCityBuildingCard = null;
-
-							if (CityBuildingCardHouse.transform.childCount <= 0)
+							if (hits[i].collider.tag == "CityBuildingCard")
 							{
-								ProcessFinishStep(3);
-								ProcessFinishRound();
+								HoldingCityBuildingCard = hits[i].collider.transform;
+								HoldingCityBuildingCardInitialPos = HoldingCityBuildingCard.position;
+
+								IsHoldingCityBuildingCard = true;
 							}
-
 						}
-						else if(hits.Length == 1)
+						else
 						{
-							IsHoldingCityBuildingCard = false;
+							if (hits[i].collider.tag == "CityTile")
+							{
+								Debug.Log("Attach " + hits[i].collider.transform.parent.name);
 
-							HoldingCityBuildingCard.position = HoldingCityBuildingCardInitialPos;
-							HoldingCityBuildingCard = null;
+								//빌딩 타일에 붙이기
+								IsHoldingCityBuildingCard = false;
+
+								HoldingCityBuildingCard.transform.parent = hits[i].collider.transform.parent.transform;
+								HoldingCityBuildingCard.position = hits[i].collider.transform.position;
+
+								//TODO: Put Data in StageData:cityBoard
+								//StageData.cityBoard[hits[i].collider.transform.parent.name] = int.Parse(HoldingCityBuildingCard.name);
+								HoldingCityBuildingCard = null;
+
+								if (CityBuildingCardHouse.transform.childCount <= 0)
+								{
+									ProcessFinishStep(3);
+									ProcessFinishRound();
+								}
+
+							}
+							else if(hits.Length == 1)
+							{
+								IsHoldingCityBuildingCard = false;
+
+								HoldingCityBuildingCard.position = HoldingCityBuildingCardInitialPos;
+								HoldingCityBuildingCard = null;
+							}
 						}
 					}
 				}
 			}
+
+			if (IsHoldingCityBuildingCard)
+			{
+				if(HoldingCityBuildingCard.parent == CityBuildingCardHouse)
+					HoldingCityBuildingCard.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
+			}
 		}
 
-		if (IsHoldingCityBuildingCard)
-		{
-			if(HoldingCityBuildingCard.parent == CityBuildingCardHouse)
-				HoldingCityBuildingCard.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
-		}
-	}
-
+	#endregion
 
 
 	/// <summary>
