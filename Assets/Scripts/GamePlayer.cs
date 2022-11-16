@@ -16,6 +16,9 @@ public class GamePlayer : MonoBehaviour
 	[SerializeField]
 	List<GameObject> StepMaterials;
 
+	[SerializeField]
+	GameObject GameFinisher;
+
 
 	private void Awake()
 	{
@@ -30,6 +33,7 @@ public class GamePlayer : MonoBehaviour
 		}
 
 		StepMaterials[0].SetActive(true);
+		GameFinisher.SetActive(false);
 	}
 
 	#endregion
@@ -57,7 +61,9 @@ public class GamePlayer : MonoBehaviour
 
 					break;
 				case 4:
-					Step4();
+					HandOutCityBuildingCards();
+					PutCityBuildingCards();
+					PassStepForTest(3);
 
 					break;
 			}
@@ -65,6 +71,7 @@ public class GamePlayer : MonoBehaviour
 		else
 		{
 			gameObject.SetActive(false);
+			GameFinisher.SetActive(true);
 		}
 	}
 
@@ -72,9 +79,12 @@ public class GamePlayer : MonoBehaviour
 
 	Vector2 origin, dir;
 
+	#region Step 1
+
 	[Header("Step1 Materials")]
 	[SerializeField]
 	GameObject Dice;
+
 	void RollTheDice()
 	{
 		//Debug.Log("Roll the Dice");
@@ -103,6 +113,10 @@ public class GamePlayer : MonoBehaviour
 		}
 	}
 
+	#endregion
+
+	#region Step 2
+
 
 	[Header("Step2 Materials")]
 	[SerializeField]
@@ -114,11 +128,11 @@ public class GamePlayer : MonoBehaviour
 
 	void HandOutBuildingCards()
 	{
-		if(!IsBuildingCardHanded)
+		if (!IsBuildingCardHanded)
 		{
-			for(int x = -15; x <= 15; x+= 3)
+			for (int x = -15; x <= 15; x += 3)
 			{
-				for(int y = -6; y <= 6; y += 3)
+				for (int y = -6; y <= 6; y += 3)
 				{
 					//spawn building cards | 16types
 					int CardNum = Random.Range(1, 17);
@@ -155,8 +169,9 @@ public class GamePlayer : MonoBehaviour
 					if (StageData.buildingCards.Count >= StageData.diceNum)
 					{
 						ProcessFinishStep(1);
-						
-						for(int i = 0; i < BuildingCardHouse.childCount; i++)
+
+						//CleanUp
+						for (int i = 0; i < BuildingCardHouse.childCount; i++)
 						{
 							Destroy(BuildingCardHouse.GetChild(i).gameObject);
 						}
@@ -165,6 +180,10 @@ public class GamePlayer : MonoBehaviour
 			}
 		}
 	}
+
+	#endregion
+
+	#region Step 3
 
 
 	[Header("Step3 Materials")]
@@ -176,14 +195,14 @@ public class GamePlayer : MonoBehaviour
 
 	Vector2[] AreaCardPoses = new Vector2[4] { new Vector2(-4.0f, 3.0f), new Vector2(4.0f, 3.0f),
 																			new Vector2(-4.0f, -5.0f), new Vector2(4.0f, -5.0f)};
-	string[] AreaCardColor = new string[6] { "A", "A", "B", "B", "C", "C"};
+	string[] AreaCardColor = new string[6] { "A", "A", "B", "B", "C", "C" };
 
 	bool IsAreaCardHanded = false;
 
 	Dictionary<string, int> AreaCardAndClick = new Dictionary<string, int>();
 	void HandOutAreaCards()
 	{
-		if(!IsAreaCardHanded)
+		if (!IsAreaCardHanded)
 		{
 			//Debug.Log("Hand Out Area Cards");
 
@@ -201,7 +220,7 @@ public class GamePlayer : MonoBehaviour
 				//TODO: 현재 최악 반복: 1+15+14+13 = 43 vs 리스트에서 하나씩 뽑기 -> 비교 후 결정
 				do
 				{
-					AreaCardNumber = AreaCardColor[StageData.CurrentRound-1] + Random.Range(1, 16);
+					AreaCardNumber = AreaCardColor[StageData.CurrentRound - 1] + Random.Range(1, 16);
 					//Debug.Log(i + AreaCardNumber);
 				} while (StageData.areaCards.Contains(AreaCardNumber));
 
@@ -222,6 +241,7 @@ public class GamePlayer : MonoBehaviour
 		}
 	}
 
+
 	bool isHoldingStamp = false;
 
 	[SerializeField]
@@ -241,7 +261,7 @@ public class GamePlayer : MonoBehaviour
 
 		if (Input.GetMouseButtonDown(0))
 		{
-			for(int i = 0; i < hits.Length; i++)
+			for (int i = 0; i < hits.Length; i++)
 			{
 				//Debug.Log(i + " " + hits[i].collider);
 
@@ -249,7 +269,7 @@ public class GamePlayer : MonoBehaviour
 				{
 					if (hits[i].collider.tag == "AreaCard")
 					{
-						if(!isHoldingStamp)
+						if (!isHoldingStamp)
 						{
 							/* Flip Cards By Clicking */
 							//Debug.Log(hits[i].collider.name);
@@ -311,32 +331,125 @@ public class GamePlayer : MonoBehaviour
 			}
 		}
 
-		if(isHoldingStamp)
+		if (isHoldingStamp)
 		{
 			/* Make Player Hold the Stamp */
 			Stamp.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
 		}
 	}
 
+	#endregion
+
 
 	[Header("Step4 Materials")]
 	[SerializeField]
-	GameObject PassStep;
-	void Step4()
+	GameObject CityBuildingCardPrefab;
+	[SerializeField]
+	Transform CityBuildingCardHouse;
+
+	bool IsCityboardReady = false;
+
+	float CityBuldingCardSpace = 2.6f;
+	float TopStartPoint = 6.3f;
+
+	void HandOutCityBuildingCards()
+	{
+		if(!IsCityboardReady)
+		{
+			int BuildingCount = StageData.buildingCards.Count;
+			int index = 0;
+
+
+			for(float y = TopStartPoint; y > TopStartPoint - CityBuldingCardSpace * BuildingCount; y -= CityBuldingCardSpace)
+			{
+				//Debug.Log(index);
+
+				GameObject CityBuildingCard = Instantiate(CityBuildingCardPrefab, new Vector3(-12.0f, y, 0.0f), Quaternion.identity, CityBuildingCardHouse) as GameObject;
+
+				string BuildingCardNum = StageData.buildingCards[index];
+				CityBuildingCard.name = "CityBuildingCard" + BuildingCardNum;
+				CityBuildingCard.GetComponentInChildren<TextMeshPro>().text = BuildingCardNum;
+
+				index++;
+			}
+
+
+			LeftCityBuildingCards = BuildingCount;
+
+			IsCityboardReady = true;
+		}
+	}
+
+	
+	int LeftCityBuildingCards;
+	bool IsHoldingCityBuildingCard;
+
+	Transform HoldingCityBuildingCard;
+	Vector3 HoldingCityBuildingCardInitialPos;
+
+	void PutCityBuildingCards()
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		origin = ray.origin;
 		dir = ray.direction;
 
-		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
+		RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir);
 
 		if (Input.GetMouseButtonDown(0))
 		{
-			if (hit.collider != null && hit.collider.name == PassStep.name)
+			for (int i = 0; i < hits.Length; i++)
 			{
-				ProcessFinishStep(3);
-				ProcessFinishRound();
+
+				if (hits[i].collider != null)
+				{
+					//Debug.Log(hits[i].collider.name + " " + IsHoldingCityBuildingCard);
+
+					if (!IsHoldingCityBuildingCard)
+					{
+						if (hits[i].collider.tag == "CityBuildingCard")
+						{
+							HoldingCityBuildingCard = hits[i].collider.transform;
+							HoldingCityBuildingCardInitialPos = HoldingCityBuildingCard.position;
+
+							IsHoldingCityBuildingCard = true;
+						}
+					}
+					else
+					{
+						if (hits[i].collider.tag == "CityTile")
+						{
+							Debug.Log("Attach " + hits[i].collider.transform.parent.name);
+
+							//빌딩 타일에 붙이기
+							IsHoldingCityBuildingCard = false;
+
+							HoldingCityBuildingCard.transform.parent = hits[i].collider.transform.parent.transform;
+							HoldingCityBuildingCard.position = hits[i].collider.transform.position;
+							HoldingCityBuildingCard = null;
+
+							if (CityBuildingCardHouse.transform.childCount <= 0)
+							{
+								ProcessFinishStep(3);
+								ProcessFinishRound();
+							}
+
+						}
+						else if(hits.Length == 1)
+						{
+							IsHoldingCityBuildingCard = false;
+
+							HoldingCityBuildingCard.position = HoldingCityBuildingCardInitialPos;
+							HoldingCityBuildingCard = null;
+						}
+					}
+				}
 			}
+		}
+
+		if (IsHoldingCityBuildingCard)
+		{
+			if(HoldingCityBuildingCard.parent == CityBuildingCardHouse)
+				HoldingCityBuildingCard.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
 		}
 	}
 
@@ -363,6 +476,7 @@ public class GamePlayer : MonoBehaviour
 			StageData.CurrentStep = 1;
 		}
 	}
+
 	/// <summary>
 	/// 한 라운드가 끝날 때마다 호출하는 함수. 현재 라운드의 어떤 스텝이 끝났는지 체크하는 리스트 초기화, 현재 라운드+=1
 	/// </summary>
@@ -374,16 +488,24 @@ public class GamePlayer : MonoBehaviour
 		}
 
 		StageData.buildingCards.Clear();
+
 		StageData.areaCards.Clear();
 		AreaCardAndClick.Clear();
 
+
 		IsBuildingCardHanded = false;
 		IsAreaCardHanded = false;
+		IsCityboardReady = false;
 
 		StageData.CurrentRound++;
 	}
 
-	/*For GameTest*/
+
+
+
+	/// <summary>
+	/// Attach StepPass Prefab in the step you want to pass by click
+	/// </summary>
 	void PassStepForTest(int i)
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -394,8 +516,16 @@ public class GamePlayer : MonoBehaviour
 
 		if (Input.GetMouseButtonDown(0))
 		{
-			if (hit.collider != null && hit.collider.name == PassStep.name)
-				ProcessFinishStep(i);
+			if (hit.collider != null && hit.collider.name == "StepPass")
+			{
+				if(i != StageData.MaxStep-1)
+					ProcessFinishStep(i);
+				else
+				{
+					ProcessFinishStep(i);
+					ProcessFinishRound();
+				}
+			}
 		}
 	}
 }

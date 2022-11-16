@@ -19,7 +19,10 @@ public class StageDataManager : MonoBehaviour
 		}
 
 		//These should be initialized After Ending Game
-		Dictionary<int, int> cityBoard;
+		/// <summary>
+		/// CityTileName: Building CardNum (nullable Int)
+		/// </summary>
+		public Dictionary<string, int?> cityBoard;   //CityTile: BuildingCard
 		public List<string> pickedAreaCards;
 
 	#endregion
@@ -54,5 +57,6 @@ public class StageDataManager : MonoBehaviour
 		currentStep = 1;
 
 		areaCards = new List<string>();
+		cityBoard = new Dictionary<string, int?>();
 	}
 }

@@ -7,6 +7,8 @@ TagManager:
   - AreaCard
   - Dice
   - BuildingCard
+  - CityBuildingCard
+  - CityTile
   layers:
   - Default
   - TransparentFX
