@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class StageDataManager : MonoBehaviour
 {
-	#region Round Data
+
+	#region Round Data_ No Initialization
 
 		int currentRound;
 		public int CurrentRound
@@ -12,23 +13,17 @@ public class StageDataManager : MonoBehaviour
 			get { return currentRound; }
 			set { currentRound = value; }
 		}
-		int maxRound = 6;
-		public int MaxRound
-		{
-			get { return maxRound; }
-		}
 
-		//These should be initialized After Ending Game
-		/// <summary>
-		/// CityTileName: Building CardNum (nullable Int)
-		/// </summary>
-		public Dictionary<string, int?> cityBoard;   //CityTile: BuildingCard
-		public List<string> pickedAreaCards;
+	#endregion
+
+	#region Round Data_ Initialization Needed
+
+
 
 	#endregion
 
 
-	#region Step Data
+	#region Step Data_ No Initialization
 
 		int currentStep;
 		public int CurrentStep
@@ -37,13 +32,15 @@ public class StageDataManager : MonoBehaviour
 			set { currentStep = value; }
 		}
 
-		int maxStep = 4;
-		public int MaxStep
-		{
-			get { return maxStep; }
-		}
+		public Dictionary<string, int?> cityBoard;   //CityTile: BuildingCard
+		public List<string> pickedAreaCards;
+
+	#endregion
+
+	#region Step Data_ Initialization Needed
 
 		//These should be initialized After Every Round
+		//매 라운드가 끝날 때마다 초기화되는 변수
 		public int diceNum;
 		public List<string> areaCards;
 		public List<string> buildingCards;

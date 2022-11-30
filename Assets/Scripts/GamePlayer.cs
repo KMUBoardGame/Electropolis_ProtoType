@@ -8,25 +8,28 @@ public class GamePlayer : MonoBehaviour
 	#region Initialization
 
 	[SerializeField]
+	GameDataManager GameData;
+
+	[SerializeField]
 	StageDataManager StageData;
 
+	[SerializeField]
+	GameObject GameFinisher;
 	bool[] IsStepFinished;
 
 	[Tooltip("Steps that are using in your game. After finishing current step, the next step will be appeared in the screen.")]
 	[SerializeField]
 	List<GameObject> StepMaterials;
 
-	[SerializeField]
-	GameObject GameFinisher;
 
 
 	private void Awake()
 	{
-		IsStepFinished = new bool[StageData.MaxStep];
+		IsStepFinished = new bool[GameData.MaxStep];
 	}
 	private void Start()
 	{
-		for (int i = 0; i < StageData.MaxStep; i++)
+		for (int i = 0; i < GameData.MaxStep; i++)
 		{
 			IsStepFinished[i] = false;
 			StepMaterials[i].SetActive(false);
@@ -41,7 +44,7 @@ public class GamePlayer : MonoBehaviour
 
 	private void Update()
 	{
-		if(StageData.CurrentRound <= StageData.MaxRound)
+		if(StageData.CurrentRound <= GameData.MaxRound)
 		{
 			switch (StageData.CurrentStep)
 			{
@@ -98,7 +101,7 @@ public class GamePlayer : MonoBehaviour
 		{
 			if (hit.collider != null && hit.transform.name == Dice.name)
 			{
-				Debug.Log(StageData.CurrentRound + "/" + StageData.MaxRound);
+				Debug.Log(StageData.CurrentRound + "/" + GameData.MaxRound);
 
 				/*Game Logic*/
 				StageData.diceNum = Random.Range(1, 7);
@@ -186,54 +189,68 @@ public class GamePlayer : MonoBehaviour
 
 
 	[Header("Step3 Materials")]
-	[SerializeField]
-	GameObject AreaCardPrefab;
 
-	[SerializeField]
-	Transform AreaCardHouse;
+	[SerializeField] GameObject AreaCardPrefab;
+	[SerializeField] Transform AreaCardHouse;
 
 	Vector2[] AreaCardPoses = new Vector2[4] { new Vector2(-4.0f, 3.0f), new Vector2(4.0f, 3.0f),
-																			new Vector2(-4.0f, -5.0f), new Vector2(4.0f, -5.0f)};
-	string[] AreaCardColor = new string[6] { "A", "A", "B", "B", "C", "C" };
+																		    new Vector2(-4.0f, -5.0f), new Vector2(4.0f, -5.0f)};
+
+	int AreaCardTypeIndex;  //2라운드마다 타입이 바뀜. ex) 1,2라운드 -> 0(A), 3,4라운드 -> 1(B), 5,6라운드 -> 2(C)
+	List<string> AreaCardTypePer2Round = new List<string> { "A", "B", "C" };
 
 	bool IsAreaCardHanded = false;
-
-	Dictionary<string, int> AreaCardAndClick = new Dictionary<string, int>();
 	void HandOutAreaCards()
 	{
 		if (!IsAreaCardHanded)
 		{
 			//Debug.Log("Hand Out Area Cards");
 
+			//TODO: 좀 더 효율적인 방법이 있을 것
+			switch (StageData.CurrentRound)
+			{
+				case 1:	case 2:
+					AreaCardTypeIndex = 0;
+					break;
+				case 3: case 4:
+					AreaCardTypeIndex = 1;
+					break;
+				case 5: case 6:
+					AreaCardTypeIndex = 2;
+					break;
+			}
+			
 			for (int i = 0; i < 4; i++)
 			{
-				GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, AreaCardHouse)
-														as GameObject;
+				GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, AreaCardHouse) as GameObject;
+				
+				string CurrentAreaCardType = AreaCardTypePer2Round[AreaCardTypeIndex];
+				List<int> LeftAreaCards = GameData.AreaCardData[CurrentAreaCardType];   //참조 복사이기 때문에 원본에도 영향 줌
 
-				//※Prefab -> Front: Active, Back: Inactive
-				TextMeshPro FrontCardTMP = AreaCard.transform.Find("Front").GetComponentInChildren<TextMeshPro>();
-				TextMeshPro BackCardTMP = AreaCard.transform.Find("Back").GetComponentInChildren<TextMeshPro>();
 
-				string AreaCardNumber;
+				int RandomNum = Random.Range(0, LeftAreaCards.Count);
 
-				//TODO: 현재 최악 반복: 1+15+14+13 = 43 vs 리스트에서 하나씩 뽑기 -> 비교 후 결정
-				do
-				{
-					AreaCardNumber = AreaCardColor[StageData.CurrentRound - 1] + Random.Range(1, 16);
-					//Debug.Log(i + AreaCardNumber);
-				} while (StageData.areaCards.Contains(AreaCardNumber));
+				int AreaCardNumber = LeftAreaCards[RandomNum];
+				string AreaCardName = CurrentAreaCardType + AreaCardNumber;
+				AreaCard.name = AreaCardName;
 
-				FrontCardTMP.text = AreaCardNumber;
-				AreaCard.name = AreaCardNumber;
 
-				//TODO: BackCardText -> GameDataManager.AreaCard Description
-				BackCardTMP.text = AreaCardNumber + "Description";
+				Transform FrontSide = AreaCard.transform.Find("Front");
+				Transform BackSide = AreaCard.transform.Find("Back");
 
-				//에리어카드 종류/클릭 횟수를 저장하는 딕셔너리에 추가
-				AreaCardAndClick.Add(AreaCardNumber, 0);
+				List<Sprite> CurrentAreaCardTypeSpriteList = GameData.AreaCardSprites[AreaCardTypeIndex];
+				FrontSide.GetComponent<SpriteRenderer>().sprite = CurrentAreaCardTypeSpriteList[AreaCardNumber % CurrentAreaCardTypeSpriteList.Count];
+				//Debug.Log(AreaCardNumber + " % " + CurrentAreaCardTypeSpriteList.Count + " = " +  AreaCardNumber % CurrentAreaCardTypeSpriteList.Count);
+
+				//FrontCard.text = 카드 보상/조건;
+				//BackCard.text = 카드 추가 설명
+
 
 				//게임 스테이지 데이터를 저장하는 리스트에 추가
-				StageData.areaCards.Add(AreaCardNumber);
+				StageData.areaCards.Add(AreaCardName);
+
+				//놓여진 에리어카드를 리스트에서 제거
+				LeftAreaCards.Remove(RandomNum);
 			}
 
 			IsAreaCardHanded = true;
@@ -241,15 +258,12 @@ public class GamePlayer : MonoBehaviour
 	}
 
 
-	bool isHoldingStamp = false;
-
-	[SerializeField]
-	Transform Stamp;
+	[SerializeField] Transform Stamp;
 
 	[Tooltip("Position that you want to put Stamp back")]
-	[SerializeField]
-	Transform InitialStampPos;
+	[SerializeField] Transform InitialStampPos;
 
+	bool isHoldingStamp = false;
 	void ChooseAreaCards()
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -271,30 +285,17 @@ public class GamePlayer : MonoBehaviour
 						if (!isHoldingStamp)
 						{
 							/* Flip Cards By Clicking */
-							//Debug.Log(hits[i].collider.name);
-							AreaCardAndClick[hits[i].transform.name]++;
-
-
-							if (AreaCardAndClick[hits[i].transform.name] % 2 == 1)
+							if (hits[i].collider.transform.name == "Front")
 							{
-								hits[i].transform.Find("Front").gameObject.SetActive(false);
-								hits[i].transform.Find("Back").gameObject.SetActive(true);
+								hits[i].transform.gameObject.SetActive(false);
+								hits[i].transform.parent.Find("Back").gameObject.SetActive(true);
 							}
-							else
+							else if (hits[i].collider.transform.name == "Back")
 							{
-								hits[i].transform.Find("Back").gameObject.SetActive(false);
-								hits[i].transform.Find("Front").gameObject.SetActive(true);
+								hits[i].transform.gameObject.SetActive(false);
+								hits[i].transform.parent.Find("Front").gameObject.SetActive(true);
 							}
 						}
-						/*
-						else
-						{
-							// When the Card is Selected By Stamp 
-							Debug.Log(hits[i].collider.name + "Picked");
-
-							ProcessFinishStep(2);
-						}
-						*/
 					}
 					if (hits[i].collider.name == "Stamp")
 					{
@@ -464,7 +465,7 @@ public class GamePlayer : MonoBehaviour
 		IsStepFinished[FinishStep] = true;
 		StepMaterials[FinishStep].SetActive(false);
 
-		if (FinishStep < StageData.MaxStep - 1)
+		if (FinishStep < GameData.MaxStep - 1)
 		{
 			StepMaterials[FinishStep + 1].SetActive(true);
 			StageData.CurrentStep++;
@@ -482,7 +483,7 @@ public class GamePlayer : MonoBehaviour
 	/// </summary>
 	void ProcessFinishRound()
 	{
-		for (int i = 0; i < StageData.MaxStep; i++)
+		for (int i = 0; i < GameData.MaxStep; i++)
 		{
 			IsStepFinished[i] = false;
 		}
@@ -490,7 +491,6 @@ public class GamePlayer : MonoBehaviour
 		StageData.buildingCards.Clear();
 
 		StageData.areaCards.Clear();
-		AreaCardAndClick.Clear();
 
 
 		IsBuildingCardHanded = false;
@@ -499,8 +499,6 @@ public class GamePlayer : MonoBehaviour
 
 		StageData.CurrentRound++;
 	}
-
-
 
 
 	/// <summary>
@@ -518,7 +516,7 @@ public class GamePlayer : MonoBehaviour
 		{
 			if (hit.collider != null && hit.collider.name == "StepPass")
 			{
-				if(i != StageData.MaxStep-1)
+				if(i != GameData.MaxStep-1)
 					ProcessFinishStep(i);
 				else
 				{

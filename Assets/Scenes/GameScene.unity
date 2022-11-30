@@ -566,9 +566,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 0.99999994, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1939,6 +1939,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1430762783}
+  - component: {fileID: 1430762784}
   m_Layer: 0
   m_Name: GameDataManager
   m_TagString: Untagged
@@ -1961,6 +1962,40 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1430762784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430762782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53011025b643a74ca77c66930433134, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AreaSpriteA:
+  - {fileID: 21300000, guid: 8093c972ca5fecd44a270a1f93ddedd4, type: 3}
+  - {fileID: 21300000, guid: 4466b542b806a5d48942c87be6104248, type: 3}
+  - {fileID: 21300000, guid: d23d1dd25b1bd7940b5e9101d6bb0f74, type: 3}
+  - {fileID: 21300000, guid: 1d1e3f4e1d3925149b23a4a3a2f3b3fb, type: 3}
+  AreaSpriteB:
+  - {fileID: 21300000, guid: d2f459af1bf60d744b093567fd3ad712, type: 3}
+  - {fileID: 21300000, guid: 813ced196782c504b9fe04907e22c765, type: 3}
+  - {fileID: 21300000, guid: 989ce73266d1c214cbecf4f3d920ff3b, type: 3}
+  - {fileID: 21300000, guid: 9a63570a7ab7ba745a1d818e1721011f, type: 3}
+  - {fileID: 21300000, guid: 240bbe84d95a8c94b85fb06b4cf7bd92, type: 3}
+  - {fileID: 21300000, guid: 8cbd8ea7c25ccec40a59b472a0aad9e5, type: 3}
+  - {fileID: 21300000, guid: 29a193dcc4cb78149910d993e4e79da7, type: 3}
+  - {fileID: 21300000, guid: 8118a4176cb4aa143b640a6ef6c4a38d, type: 3}
+  - {fileID: 21300000, guid: eb81cca721136b94ab6d9acfea1e2c62, type: 3}
+  - {fileID: 21300000, guid: a22d7984f1e1e104d9b4b45ff27dabde, type: 3}
+  AreaSpriteC:
+  - {fileID: 21300000, guid: ae8debade7478d44d87b500f5ab6ea16, type: 3}
+  - {fileID: 21300000, guid: 893a3629a019a504e8d0355c8cfcff13, type: 3}
+  - {fileID: 21300000, guid: c8de04f6abdb9e548a59664fad2b55ea, type: 3}
+  - {fileID: 21300000, guid: ab4fe6384d052624ea520078863ff55d, type: 3}
+  - {fileID: 21300000, guid: 85b539d2431a60b42b3522801143acfe, type: 3}
 --- !u!1 &1616729848
 GameObject:
   m_ObjectHideFlags: 0
@@ -2409,17 +2444,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5894ffcecb5461b4eba7363ae1e7de1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameData: {fileID: 1430762784}
   StageData: {fileID: 1302104742}
+  GameFinisher: {fileID: 1298446973}
   StepMaterials:
   - {fileID: 1019106745}
   - {fileID: 27049056}
   - {fileID: 1699125977}
   - {fileID: 1424074497}
-  GameFinisher: {fileID: 1298446973}
   Dice: {fileID: 366885893}
   BuildingCardPrefab: {fileID: 557632642075142269, guid: 2ae8fdc7fd3084a408ed851f5fc49ba3, type: 3}
   BuildingCardHouse: {fileID: 149077502}
-  AreaCardPrefab: {fileID: 3013741152821568970, guid: bb8db9d943a00e94795d5588dba32a61, type: 3}
+  AreaCardPrefab: {fileID: 7432275260605521891, guid: 330d4651bd6a58842aa5c7b3c063eac1, type: 3}
   AreaCardHouse: {fileID: 1787909446}
   Stamp: {fileID: 1073186835}
   InitialStampPos: {fileID: 654567347}
