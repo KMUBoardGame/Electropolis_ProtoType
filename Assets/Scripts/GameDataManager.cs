@@ -22,8 +22,8 @@ public class GameDataManager : MonoBehaviour
 	#endregion
 
 
-	#region
-	//게임에서 즉석으로 생성해야하는 스프라이트 이미지를 저장
+	#region AreaCardData_ Sprite, MaximumNumOfCard
+
 	[SerializeField] List<Sprite> AreaSpriteA;
 	[SerializeField] List<Sprite> AreaSpriteB;
 	[SerializeField] List<Sprite> AreaSpriteC;
@@ -37,8 +37,21 @@ public class GameDataManager : MonoBehaviour
 		{ "B", new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } },
 		{ "C", new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } }
 	};
+
 	#endregion
 
+
+	#region BuildingCardData
+
+	[SerializeField] List<Sprite> BuildingCardSprites;
+	Dictionary<int, string> BuildingCardData = new Dictionary<int, string>
+	{
+		{ 0,  "CoalPlant"}, {1, "Coal"}, {2, "GasPlant"}, {3, "Gas"}, {4, "AtomicPlant"}, {5, "UraniumProcessor"}, {6, "Uranium"}, {7, "BioEnergyPlant"}, {8, "GeoTemperaturePlant"},
+		{9, "HydroPlant"}, {10, "SolarPlant"},{11, "WindPlant"}, {12, "AmusementPark"}, {13, "Hospital"},{14, "Museum"},{15, "Park"}, {16, "PublicHousing"}, {17, "PollutionDecreaser"}
+	};
+	public int BuildingCardNum;
+
+	#endregion
 
 	private void Awake()
 	{
@@ -46,5 +59,8 @@ public class GameDataManager : MonoBehaviour
 		AreaCardSprites.Add(AreaSpriteA);
 		AreaCardSprites.Add(AreaSpriteB);
 		AreaCardSprites.Add(AreaSpriteC);
+
+		//건물카드 개수 초기화
+		BuildingCardNum = BuildingCardData.Count;
 	}
 }

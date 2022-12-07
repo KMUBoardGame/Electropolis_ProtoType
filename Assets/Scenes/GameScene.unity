@@ -197,8 +197,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 149077502}
+  - component: {fileID: 149077503}
   m_Layer: 0
-  m_Name: BuildingCardHouse
+  m_Name: BuildingCardStack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -219,6 +220,23 @@ Transform:
   m_Father: {fileID: 27049057}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &149077503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 149077501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14ddceae8e8f5a74f97217b157ed3cb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameData: {fileID: 1430762784}
+  BuildingCardPrefab: {fileID: 557632642075142269, guid: 2ae8fdc7fd3084a408ed851f5fc49ba3, type: 3}
+  InitialXPos: 15
+  InitialYPos: 6
+  cardSpace: 3
 --- !u!1 &196917127
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,6 +337,7 @@ GameObject:
   - component: {fileID: 366885897}
   - component: {fileID: 366885896}
   - component: {fileID: 366885898}
+  - component: {fileID: 366885899}
   m_Layer: 0
   m_Name: Dice
   m_TagString: Dice
@@ -419,6 +438,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 20, y: 20}
   m_EdgeRadius: 0
+--- !u!114 &366885899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366885893}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4cc50dba31ab034c8bf96af607c9837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minNum: 1
+  maxNum: 6
 --- !u!1 &373378337
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,37 +1025,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &654567346
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 654567347}
-  m_Layer: 0
-  m_Name: StampHouse(AlwaysSamePosWIthStamp)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &654567347
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 654567346}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.25, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1699125978}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &723807989
 GameObject:
   m_ObjectHideFlags: 0
@@ -1591,6 +1593,7 @@ GameObject:
   - component: {fileID: 1073186835}
   - component: {fileID: 1073186837}
   - component: {fileID: 1073186838}
+  - component: {fileID: 1073186839}
   m_Layer: 0
   m_Name: Stamp
   m_TagString: Untagged
@@ -1682,6 +1685,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &1073186839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073186834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3fb34df01a45a9488ceea50f6e2dd2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1234118244
 GameObject:
   m_ObjectHideFlags: 0
@@ -1996,6 +2011,26 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c8de04f6abdb9e548a59664fad2b55ea, type: 3}
   - {fileID: 21300000, guid: ab4fe6384d052624ea520078863ff55d, type: 3}
   - {fileID: 21300000, guid: 85b539d2431a60b42b3522801143acfe, type: 3}
+  BuildingCardSprites:
+  - {fileID: 21300000, guid: 73ef75b04ccd4aa4e879346fa71bebc2, type: 3}
+  - {fileID: 21300000, guid: 38c0868e5c15baf4c94e21344ed2ea65, type: 3}
+  - {fileID: 21300000, guid: 45225760262d2e54eacaf0a070c50b70, type: 3}
+  - {fileID: 21300000, guid: 94ac50a1e7db83d4b82293c0a88bdca2, type: 3}
+  - {fileID: 21300000, guid: 743f68a8b746db54d8c82589a9698d6b, type: 3}
+  - {fileID: 21300000, guid: 9e1be898360618044965d1ceb7c5fe4a, type: 3}
+  - {fileID: 21300000, guid: 9cc2bd165f614df48be2100924039cef, type: 3}
+  - {fileID: 21300000, guid: 96cadb4f3db338d4799d99d4b0de087e, type: 3}
+  - {fileID: 21300000, guid: 83c63b7e3ed309c4b8a03bfd8b26d80d, type: 3}
+  - {fileID: 21300000, guid: b879925cd05297a4db0da75bfb4075a9, type: 3}
+  - {fileID: 21300000, guid: 9c83d6050b530f14a80b23b139a7a3ac, type: 3}
+  - {fileID: 21300000, guid: 937407449f049b744b6f680aec811b43, type: 3}
+  - {fileID: 21300000, guid: a9259917a18f9634a8cebe028516ac40, type: 3}
+  - {fileID: 21300000, guid: ea6074e1d727c50498c5999fcd1c0c3e, type: 3}
+  - {fileID: 21300000, guid: 658cd8360c68d554185a666c97b4dc79, type: 3}
+  - {fileID: 21300000, guid: 8d544d723204359499c5a1a14922b9be, type: 3}
+  - {fileID: 21300000, guid: 39b22ed6f58bc3a468d4cc8cea4aa4c1, type: 3}
+  - {fileID: 21300000, guid: 0d1d54ed41837b24dbc8547520c3a253, type: 3}
+  BuildingCardNum: 0
 --- !u!1 &1616729848
 GameObject:
   m_ObjectHideFlags: 0
@@ -2095,7 +2130,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1699125978
 Transform:
   m_ObjectHideFlags: 0
@@ -2110,7 +2145,6 @@ Transform:
   m_Children:
   - {fileID: 1616729849}
   - {fileID: 1073186835}
-  - {fileID: 654567347}
   - {fileID: 1787909446}
   m_Father: {fileID: 2111408615}
   m_RootOrder: 2
@@ -2208,8 +2242,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1787909446}
+  - component: {fileID: 1787909447}
   m_Layer: 0
-  m_Name: AreaCardHouse
+  m_Name: AreaCardStack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2228,8 +2263,23 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1699125978}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1787909447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1787909445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eba2edb9c630c974484a18baf888ecf4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameData: {fileID: 1430762784}
+  StageData: {fileID: 1302104742}
+  AreaCardPrefab: {fileID: 7432275260605521891, guid: 330d4651bd6a58842aa5c7b3c063eac1, type: 3}
 --- !u!1001 &1876327799
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2452,12 +2502,11 @@ MonoBehaviour:
   - {fileID: 27049056}
   - {fileID: 1699125977}
   - {fileID: 1424074497}
-  Dice: {fileID: 366885893}
+  Dice: {fileID: 366885897}
   BuildingCardPrefab: {fileID: 557632642075142269, guid: 2ae8fdc7fd3084a408ed851f5fc49ba3, type: 3}
-  BuildingCardHouse: {fileID: 149077502}
-  AreaCardPrefab: {fileID: 7432275260605521891, guid: 330d4651bd6a58842aa5c7b3c063eac1, type: 3}
-  AreaCardHouse: {fileID: 1787909446}
+  BuildingCardStack: {fileID: 149077503}
+  AreaCardStack: {fileID: 0}
   Stamp: {fileID: 1073186835}
-  InitialStampPos: {fileID: 654567347}
+  InitialStampPos: {fileID: 0}
   CityBuildingCardPrefab: {fileID: 4325579374945195369, guid: 4e3783bff350b4e4fb5e95cd59454b7a, type: 3}
   CityBuildingCardHouse: {fileID: 973173969}

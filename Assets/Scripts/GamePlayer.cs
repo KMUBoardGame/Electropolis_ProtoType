@@ -29,6 +29,7 @@ public class GamePlayer : MonoBehaviour
 	}
 	private void Start()
 	{
+		#region DONOTTOUCH
 		for (int i = 0; i < GameData.MaxStep; i++)
 		{
 			IsStepFinished[i] = false;
@@ -37,6 +38,9 @@ public class GamePlayer : MonoBehaviour
 
 		StepMaterials[0].SetActive(true);
 		GameFinisher.SetActive(false);
+		#endregion
+
+
 	}
 
 	#endregion
@@ -49,17 +53,15 @@ public class GamePlayer : MonoBehaviour
 			switch (StageData.CurrentStep)
 			{
 				case 1:
-					RollTheDice();
+					Step1();
 
 					break;
 				case 2:
-					HandOutBuildingCards();
-					ChooseBuildingCards();
+					Step2();
 
 					break;
 				case 3:
-					HandOutAreaCards();
-					ChooseAreaCards();
+					Step2();
 
 					break;
 				case 4:
@@ -78,40 +80,61 @@ public class GamePlayer : MonoBehaviour
 	}
 
 
-
 	Vector2 origin, dir;
-
-	#region Step 1
-
-	[Header("Step1 Materials")]
-	[SerializeField]
-	GameObject Dice;
-
-	void RollTheDice()
+	bool CheckClickWithTag(string clickObjTag)
 	{
-		//Debug.Log("Roll the Dice");
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 		origin = ray.origin;
 		dir = ray.direction;
 
 		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
 
-		/*User Behavior (If User Click the Dice)*/
+
 		if (Input.GetMouseButtonDown(0))
 		{
-			if (hit.collider != null && hit.transform.name == Dice.name)
+			if (hit.collider != null && hit.transform.tag == clickObjTag)
 			{
-				Debug.Log(StageData.CurrentRound + "/" + GameData.MaxRound);
-
-				/*Game Logic*/
-				StageData.diceNum = Random.Range(1, 7);
-
-				/*Game Update*/
-				Debug.Log("Dice Rolled: " + StageData.diceNum);
-
-				//End the Step
-				ProcessFinishStep(0);
+				return true;
 			}
+		}
+
+		return false;
+	}
+
+	Transform GetClickObjWithTag(string clickObjTag)
+	{
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+		origin = ray.origin;
+		dir = ray.direction;
+
+		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
+
+
+		if (Input.GetMouseButtonDown(0))
+		{
+			if (hit.collider != null && hit.transform.tag == clickObjTag)
+			{
+				return hit.transform;
+			}
+		}
+
+		return null;
+	}
+
+
+	#region Step 1
+
+	[Header("Step1 Materials")]
+	[SerializeField]
+	Transform Dice;
+
+	void Step1()
+	{
+		if(CheckClickWithTag(Dice.tag))
+		{
+			StageData.diceNum = Dice.GetComponent<Dice>().RollTheDice();
+
+			ProcessFinishStep(0);
 		}
 	}
 
@@ -121,64 +144,31 @@ public class GamePlayer : MonoBehaviour
 
 
 	[Header("Step2 Materials")]
-	[SerializeField]
-	GameObject BuildingCardPrefab;
-	[SerializeField]
-	Transform BuildingCardHouse;
+	[SerializeField] GameObject BuildingCardPrefab;
+	[SerializeField] BuildingCardStack BuildingCardStack;
 
-	bool IsBuildingCardHanded = false;
 
-	void HandOutBuildingCards()
+	void Step2()
 	{
-		if (!IsBuildingCardHanded)
-		{
-			for (int x = -15; x <= 15; x += 3)
-			{
-				for (int y = -6; y <= 6; y += 3)
-				{
-					//spawn building cards | 16types
-					int CardNum = Random.Range(1, 17);
-					GameObject BuildingCard = Instantiate(BuildingCardPrefab, new Vector3(x, y, 0), Quaternion.identity, BuildingCardHouse.transform) as GameObject;
-					BuildingCard.GetComponentInChildren<TextMeshPro>().text = CardNum.ToString();
-					BuildingCard.name = CardNum.ToString();
-				}
-			}
-
-			//타일 세부 설정, 랜덤 발급
-
-			IsBuildingCardHanded = true;
-		}
+		ChooseBuildingCards();
 	}
+
 
 	void ChooseBuildingCards()
 	{
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		origin = ray.origin;
-		dir = ray.direction;
-
-		RaycastHit2D hit = Physics2D.Raycast(origin, dir);
-
-		if (Input.GetMouseButtonDown(0))
+		if (GetClickObjWithTag(BuildingCardPrefab.transform.tag) != null)
 		{
-			if (hit.collider != null)
+			Transform ChosenBuildingCard = GetClickObjWithTag(BuildingCardPrefab.transform.tag);
+
+			StageData.buildingCards.Add(ChosenBuildingCard.name);
+			Destroy(ChosenBuildingCard.gameObject);
+
+			if (StageData.buildingCards.Count >= StageData.diceNum)
 			{
-				if (hit.collider.tag == "BuildingCard")
-				{
-					StageData.buildingCards.Add(hit.collider.name);
-					Destroy(hit.collider.gameObject);
-					//Debug.Log(hit.collider.name);
+				ProcessFinishStep(1);
 
-					if (StageData.buildingCards.Count >= StageData.diceNum)
-					{
-						ProcessFinishStep(1);
-
-						//CleanUp
-						for (int i = 0; i < BuildingCardHouse.childCount; i++)
-						{
-							Destroy(BuildingCardHouse.GetChild(i).gameObject);
-						}
-					}
-				}
+				BuildingCardStack.RetakeBuildingCards();
+				BuildingCardStack.MixBuildingCards();
 			}
 		}
 	}
@@ -190,72 +180,29 @@ public class GamePlayer : MonoBehaviour
 
 	[Header("Step3 Materials")]
 
-	[SerializeField] GameObject AreaCardPrefab;
-	[SerializeField] Transform AreaCardHouse;
+	[SerializeField] AreaCardStack AreaCardStack;
 
-	Vector2[] AreaCardPoses = new Vector2[4] { new Vector2(-4.0f, 3.0f), new Vector2(4.0f, 3.0f),
-																		    new Vector2(-4.0f, -5.0f), new Vector2(4.0f, -5.0f)};
-
-	int AreaCardTypeIndex;  //2라운드마다 타입이 바뀜. ex) 1,2라운드 -> 0(A), 3,4라운드 -> 1(B), 5,6라운드 -> 2(C)
-	List<string> AreaCardTypePer2Round = new List<string> { "A", "B", "C" };
+	/*
 
 	bool IsAreaCardHanded = false;
 	void HandOutAreaCards()
 	{
-		if (!IsAreaCardHanded)
+		switch (StageData.CurrentRound)
 		{
-			//Debug.Log("Hand Out Area Cards");
-
-			//TODO: 좀 더 효율적인 방법이 있을 것
-			switch (StageData.CurrentRound)
-			{
-				case 1:	case 2:
-					AreaCardTypeIndex = 0;
-					break;
-				case 3: case 4:
-					AreaCardTypeIndex = 1;
-					break;
-				case 5: case 6:
-					AreaCardTypeIndex = 2;
-					break;
-			}
-			
-			for (int i = 0; i < 4; i++)
-			{
-				GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, AreaCardHouse) as GameObject;
-				
-				string CurrentAreaCardType = AreaCardTypePer2Round[AreaCardTypeIndex];
-				List<int> LeftAreaCards = GameData.AreaCardData[CurrentAreaCardType];   //참조 복사이기 때문에 원본에도 영향 줌
-
-
-				int RandomNum = Random.Range(0, LeftAreaCards.Count);
-
-				int AreaCardNumber = LeftAreaCards[RandomNum];
-				string AreaCardName = CurrentAreaCardType + AreaCardNumber;
-				AreaCard.name = AreaCardName;
-
-
-				Transform FrontSide = AreaCard.transform.Find("Front");
-				Transform BackSide = AreaCard.transform.Find("Back");
-
-				List<Sprite> CurrentAreaCardTypeSpriteList = GameData.AreaCardSprites[AreaCardTypeIndex];
-				FrontSide.GetComponent<SpriteRenderer>().sprite = CurrentAreaCardTypeSpriteList[AreaCardNumber % CurrentAreaCardTypeSpriteList.Count];
-				//Debug.Log(AreaCardNumber + " % " + CurrentAreaCardTypeSpriteList.Count + " = " +  AreaCardNumber % CurrentAreaCardTypeSpriteList.Count);
-
-				//FrontCard.text = 카드 보상/조건;
-				//BackCard.text = 카드 추가 설명
-
-
-				//게임 스테이지 데이터를 저장하는 리스트에 추가
-				StageData.areaCards.Add(AreaCardName);
-
-				//놓여진 에리어카드를 리스트에서 제거
-				LeftAreaCards.Remove(RandomNum);
-			}
-
-			IsAreaCardHanded = true;
+			case 1:
+			case 2:
+				AreaCardTypeIndex = 0;
+				break;
+			case 3:
+			case 4:
+				AreaCardTypeIndex = 1;
+				break;
+			case 5:
+			case 6:
+				AreaCardTypeIndex = 2;
+				break;
 		}
-	}
+	}*/
 
 
 	[SerializeField] Transform Stamp;
@@ -264,6 +211,7 @@ public class GamePlayer : MonoBehaviour
 	[SerializeField] Transform InitialStampPos;
 
 	bool isHoldingStamp = false;
+	/*
 	void ChooseAreaCards()
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -284,7 +232,7 @@ public class GamePlayer : MonoBehaviour
 					{
 						if (!isHoldingStamp)
 						{
-							/* Flip Cards By Clicking */
+							// Flip Cards By Clicking
 							if (hits[i].collider.transform.name == "Front")
 							{
 								hits[i].transform.gameObject.SetActive(false);
@@ -299,7 +247,7 @@ public class GamePlayer : MonoBehaviour
 					}
 					if (hits[i].collider.name == "Stamp")
 					{
-						/* Check If Player is Holding Stamp / If we have to get Stamp back */
+						// Check If Player is Holding Stamp / If we have to get Stamp back
 						if (!isHoldingStamp)
 							isHoldingStamp = true;
 						else
@@ -311,9 +259,9 @@ public class GamePlayer : MonoBehaviour
 							}
 							else
 							{
-								/* When the Card is Selected By Stamp -> Under the stamp => hits[1] */
-								Debug.Log(hits[1].collider.name + " Picked");
-								StageData.pickedAreaCards.Add(hits[1].collider.name);
+								//When the Card is Selected By Stamp -> Under the stamp => hits[1] 
+								Debug.Log(hits[1].transform.parent.name + " Picked");
+								StageData.pickedAreaCards.Add(hits[1].transform.parent.name);
 
 								ProcessFinishStep(2);
 
@@ -333,11 +281,11 @@ public class GamePlayer : MonoBehaviour
 
 		if (isHoldingStamp)
 		{
-			/* Make Player Hold the Stamp */
+			//Make Player Hold the Stamp
 			Stamp.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
 		}
 	}
-
+		*/
 	#endregion
 
 	#region Step 4
@@ -492,9 +440,6 @@ public class GamePlayer : MonoBehaviour
 
 		StageData.areaCards.Clear();
 
-
-		IsBuildingCardHanded = false;
-		IsAreaCardHanded = false;
 		IsCityboardReady = false;
 
 		StageData.CurrentRound++;
