@@ -16,12 +16,27 @@ public class AreaCard : MonoBehaviour
 		get { return cardNum; }
 	}
 
+	Transform FrontSide;
+	Transform BackSide;
+
+	private void Start()
+	{
+		// ?: Front, Back 저장 후 불러오기가 안 됨
+		FrontSide = transform.GetChild(0);
+		BackSide = transform.GetChild(1);
+	}
+
 
 	public void InitializeAreaCardInfo(string _CardType, int _CardNum)
 	{
 		cardType = _CardType;
 		cardNum = _CardNum;
 
-		transform.name = CardType + CardNum.ToString();
+		transform.name = cardType + cardNum.ToString();
+	}
+
+	public void SetFrontSprite(Sprite cardSprite)
+	{
+		transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = cardSprite;
 	}
 }

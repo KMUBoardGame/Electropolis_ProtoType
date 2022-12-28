@@ -21,33 +21,46 @@ public class AreaCardStack : MonoBehaviour
 
 	private void Start()
 	{
-		HandOutCardStack("C");
+		//게임 시작할 때에는 라운드1: A타입 분배해야 함
+		HandOutCardStack("A");
 	}
 
 	public void HandOutCardStack(string CardType)
 	{
 		// TODO: 효율적 예외처리 예정
-		if (CardType != "A" && CardType != "B" && CardType != "C") { Debug.Log("AreaCardType Out Of Range"); return; }	 
+		if (CardType != "A" && CardType != "B" && CardType != "C") { Debug.Log("AreaCardType Out Of Range"); return; }
+
+		List<int> AreaCardStack = GameData.AreaCardData[CardType];
+
+		//A의 Ascii = 41 -> 'A' - A_ascii = 0, 'B' - A_ascii = 1, 'C' - A_ascii = 2 ...
+		List<Sprite> CurrentAreaCardTypeSpriteList = GameData.AreaCardSprites[CardType[0] - A_ascii];
+
 
 		for (int i = 0; i < 4; i++)
-		{
-			List<int> AreaCardStack = GameData.AreaCardData[CardType];
-			int AreaCardNumber = AreaCardStack[Random.Range(0, AreaCardStack.Count)];
+		{ 
+			int StackCardIndex = Random.Range(0, AreaCardStack.Count);
+			int AreaCardNumber = AreaCardStack[StackCardIndex];
+
+			//Debug.Log(AreaCardNumber);
 
 			GameObject AreaCard = Instantiate(AreaCardPrefab, AreaCardPoses[i], Quaternion.identity, transform) as GameObject;
+
 			AreaCard.GetComponent<AreaCard>().InitializeAreaCardInfo(CardType, AreaCardNumber);
 
+			Sprite CardSprite = CurrentAreaCardTypeSpriteList[AreaCardNumber % CurrentAreaCardTypeSpriteList.Count];
 
-			//여기부터는 에리어카드 스크립트에서 변경? 해야함?
-			Transform FrontSide = AreaCard.transform.Find("Front");
-			Transform BackSide = AreaCard.transform.Find("Back");
+			//문제 있음: 수정하기
+			AreaCard.GetComponent<AreaCard>().SetFrontSprite(CardSprite);
 
-			//A의 Ascii = 41 -> 'A' - A_ascii = 0, 'B' - A_ascii = 1, 'C' - A_ascii = 2,  
-			List<Sprite> CurrentAreaCardTypeSpriteList = GameData.AreaCardSprites[CardType[0]- A_ascii];
-			// TOTHINK: 에리어카드 스프라이트 리스트를 게임데이터에 넣어야 하는지? 에리어카드 객체에 옮겨야 하는지?
-			FrontSide.GetComponent<SpriteRenderer>().sprite = CurrentAreaCardTypeSpriteList[AreaCardNumber % CurrentAreaCardTypeSpriteList.Count];
+			AreaCardStack.RemoveAt(StackCardIndex);  //뽑은 카드는 데이터에서 제외: 중복 방지
+		}
+	}
 
-			StageData.areaCards.Add(AreaCard);
+	public void RetakeAreaCards()
+	{
+		for (int i = 0; i < transform.childCount; i++)
+		{
+			Destroy(transform.GetChild(i).gameObject);
 		}
 	}
 }

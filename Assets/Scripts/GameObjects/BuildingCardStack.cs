@@ -19,9 +19,10 @@ public class BuildingCardStack : MonoBehaviour
 			for (int y = -InitialYPos; y <= InitialYPos; y += cardSpace)
 			{
 				//spawn building cards | 16types
-				int CardNum = Random.Range(0, GameData.BuildingCardNum);
+				int CardNum = Random.Range(0, GameData.BuildingCardData.Count);
 				GameObject BuildingCard = Instantiate(BuildingCardPrefab, new Vector3(x, y, 0), Quaternion.identity, gameObject.transform) as GameObject;
-				BuildingCard.GetComponentInChildren<TMPro.TextMeshPro>().text = CardNum.ToString();
+
+				BuildingCard.GetComponent<SpriteRenderer>().sprite = GameData.BuildingCardSprites[CardNum];
 				BuildingCard.name = CardNum.ToString();
 			}
 		}

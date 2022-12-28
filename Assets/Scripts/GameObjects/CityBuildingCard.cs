@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Stamp : MonoBehaviour
+public class CityBuildingCard : MonoBehaviour
 {
 	Vector3 initialPos;
 	public enum StampState
@@ -19,6 +19,7 @@ public class Stamp : MonoBehaviour
 	{
 		initialPos = transform.position;
 		stampState = StampState.Release;
+		ClickedObj = null;
 	}
 
 	private void OnMouseDown()
@@ -28,7 +29,7 @@ public class Stamp : MonoBehaviour
 
 	private void Update()
 	{
-		if(stampState == StampState.Hold)
+		if (stampState == StampState.Hold)
 		{
 			transform.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
 		}
@@ -46,13 +47,18 @@ public class Stamp : MonoBehaviour
 
 		for (int i = 0; i < hits.Length; i++)
 		{
-			if (hits[i].collider != null && hits[i].transform.tag == "AreaCard")
+			if (hits[i].collider != null && hits[i].transform.tag == "CityTile")
 			{
 				ClickedObj = hits[i].transform;
-				Debug.Log(ClickedObj);
+				Debug.Log(transform.name + " attached to " + ClickedObj);
 			}
-		} 
+		}
 
-		transform.position = initialPos;
+		if(!ClickedObj) transform.position = initialPos;
+		else
+		{
+			transform.position = ClickedObj.position;
+			transform.parent = ClickedObj;
+		}
 	}
 }

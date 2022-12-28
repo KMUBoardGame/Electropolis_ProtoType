@@ -43,8 +43,8 @@ public class GameDataManager : MonoBehaviour
 
 	#region BuildingCardData
 
-	[SerializeField] List<Sprite> BuildingCardSprites;
-	Dictionary<int, string> BuildingCardData = new Dictionary<int, string>
+	public List<Sprite> BuildingCardSprites;
+	public Dictionary<int, string> BuildingCardData = new Dictionary<int, string>
 	{
 		{ 0,  "CoalPlant"}, {1, "Coal"}, {2, "GasPlant"}, {3, "Gas"}, {4, "AtomicPlant"}, {5, "UraniumProcessor"}, {6, "Uranium"}, {7, "BioEnergyPlant"}, {8, "GeoTemperaturePlant"},
 		{9, "HydroPlant"}, {10, "SolarPlant"},{11, "WindPlant"}, {12, "AmusementPark"}, {13, "Hospital"},{14, "Museum"},{15, "Park"}, {16, "PublicHousing"}, {17, "PollutionDecreaser"}

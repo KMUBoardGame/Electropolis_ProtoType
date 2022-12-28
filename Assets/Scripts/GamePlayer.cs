@@ -40,7 +40,7 @@ public class GamePlayer : MonoBehaviour
 		GameFinisher.SetActive(false);
 		#endregion
 
-
+		IsCityboardReady = false;
 	}
 
 	#endregion
@@ -61,12 +61,11 @@ public class GamePlayer : MonoBehaviour
 
 					break;
 				case 3:
-					Step2();
+					Step3();
 
 					break;
 				case 4:
-					HandOutCityBuildingCards();
-					PutCityBuildingCards();
+					Step4();
 					PassStepForTest(3);
 
 					break;
@@ -144,7 +143,6 @@ public class GamePlayer : MonoBehaviour
 
 
 	[Header("Step2 Materials")]
-	[SerializeField] GameObject BuildingCardPrefab;
 	[SerializeField] BuildingCardStack BuildingCardStack;
 
 
@@ -156,249 +154,92 @@ public class GamePlayer : MonoBehaviour
 
 	void ChooseBuildingCards()
 	{
-		if (GetClickObjWithTag(BuildingCardPrefab.transform.tag) != null)
-		{
-			Transform ChosenBuildingCard = GetClickObjWithTag(BuildingCardPrefab.transform.tag);
+		Transform ChosenBuildingCard = GetClickObjWithTag("BuildingCard");
 
+		if (ChosenBuildingCard != null)
+		{
 			StageData.buildingCards.Add(ChosenBuildingCard.name);
 			Destroy(ChosenBuildingCard.gameObject);
 
 			if (StageData.buildingCards.Count >= StageData.diceNum)
 			{
-				ProcessFinishStep(1);
-
-				BuildingCardStack.RetakeBuildingCards();
-				BuildingCardStack.MixBuildingCards();
+				FinishAndResetStep2();
 			}
 		}
+	}
+
+	void FinishAndResetStep2()
+	{
+		//현재 스텝 끝내기
+		ProcessFinishStep(1);
+
+		//스텝 이후 업데이트 해야 할 내용: 뽑히지 않은 건물카드 삭제 후 새로운 건물카드들 재분배
+		BuildingCardStack.RetakeBuildingCards();
+		BuildingCardStack.MixBuildingCards();
 	}
 
 	#endregion
 
 	#region Step 3
 
-
 	[Header("Step3 Materials")]
-
 	[SerializeField] AreaCardStack AreaCardStack;
+	List<string> CardTypePerRound = new List<string> { "A", "A", "B", "B", "C", "C" };
+	[SerializeField] Stamp Stamp;
 
-	/*
-
-	bool IsAreaCardHanded = false;
-	void HandOutAreaCards()
+	void Step3()
 	{
-		switch (StageData.CurrentRound)
+		if(Stamp.ClickedObj != null)
 		{
-			case 1:
-			case 2:
-				AreaCardTypeIndex = 0;
-				break;
-			case 3:
-			case 4:
-				AreaCardTypeIndex = 1;
-				break;
-			case 5:
-			case 6:
-				AreaCardTypeIndex = 2;
-				break;
-		}
-	}*/
+			Transform ClickedAreaCard = Stamp.ClickedObj;
 
+			StageData.pickedAreaCards.Add(ClickedAreaCard.name);
 
-	[SerializeField] Transform Stamp;
-
-	[Tooltip("Position that you want to put Stamp back")]
-	[SerializeField] Transform InitialStampPos;
-
-	bool isHoldingStamp = false;
-	/*
-	void ChooseAreaCards()
-	{
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		origin = ray.origin;
-		dir = ray.direction;
-
-		RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir);
-
-		if (Input.GetMouseButtonDown(0))
-		{
-			for (int i = 0; i < hits.Length; i++)
-			{
-				//Debug.Log(i + " " + hits[i].collider);
-
-				if (hits[i].collider != null)
-				{
-					if (hits[i].collider.tag == "AreaCard")
-					{
-						if (!isHoldingStamp)
-						{
-							// Flip Cards By Clicking
-							if (hits[i].collider.transform.name == "Front")
-							{
-								hits[i].transform.gameObject.SetActive(false);
-								hits[i].transform.parent.Find("Back").gameObject.SetActive(true);
-							}
-							else if (hits[i].collider.transform.name == "Back")
-							{
-								hits[i].transform.gameObject.SetActive(false);
-								hits[i].transform.parent.Find("Front").gameObject.SetActive(true);
-							}
-						}
-					}
-					if (hits[i].collider.name == "Stamp")
-					{
-						// Check If Player is Holding Stamp / If we have to get Stamp back
-						if (!isHoldingStamp)
-							isHoldingStamp = true;
-						else
-						{
-							if (hits.Length < 2)
-							{
-								Stamp.position = InitialStampPos.position;
-								isHoldingStamp = false;
-							}
-							else
-							{
-								//When the Card is Selected By Stamp -> Under the stamp => hits[1] 
-								Debug.Log(hits[1].transform.parent.name + " Picked");
-								StageData.pickedAreaCards.Add(hits[1].transform.parent.name);
-
-								ProcessFinishStep(2);
-
-								for (int k = 0; k < AreaCardHouse.childCount; k++)
-								{
-									Destroy(AreaCardHouse.GetChild(k).gameObject);
-								}
-
-								Stamp.position = InitialStampPos.position;
-								isHoldingStamp = false;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (isHoldingStamp)
-		{
-			//Make Player Hold the Stamp
-			Stamp.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
+			FinishAndResetStep3();
 		}
 	}
-		*/
+
+	void FinishAndResetStep3()
+	{
+		ProcessFinishStep(2);
+
+		AreaCardStack.RetakeAreaCards();
+		if (StageData.CurrentRound < GameData.MaxRound)
+			AreaCardStack.HandOutCardStack(CardTypePerRound[StageData.CurrentRound]);
+	}
+
 	#endregion
 
 	#region Step 4
 
 		[Header("Step4 Materials")]
 		[SerializeField]
-		GameObject CityBuildingCardPrefab;
-		[SerializeField]
-		Transform CityBuildingCardHouse;
+		CityBuildingCardStack CityBuildingCardStack;
 
-		bool IsCityboardReady = false;
-
-		float CityBuldingCardSpace = 2.6f;
-		float TopStartPoint = 6.3f;
-
-		void HandOutCityBuildingCards()
+		bool IsCityboardReady;
+		void Step4()
 		{
-			if(!IsCityboardReady)
+			if (!IsCityboardReady)
 			{
-				int BuildingCount = StageData.buildingCards.Count;
-				int index = 0;
-
-
-				for(float y = TopStartPoint; y > TopStartPoint - CityBuldingCardSpace * BuildingCount; y -= CityBuldingCardSpace)
-				{
-					//Debug.Log(index);
-
-					GameObject CityBuildingCard = Instantiate(CityBuildingCardPrefab, new Vector3(-12.0f, y, 0.0f), Quaternion.identity, CityBuildingCardHouse) as GameObject;
-
-					string BuildingCardNum = StageData.buildingCards[index];
-					CityBuildingCard.name = "CityBuildingCard" + BuildingCardNum;
-					CityBuildingCard.GetComponentInChildren<TextMeshPro>().text = BuildingCardNum;
-
-					index++;
-				}
+				CityBuildingCardStack.HandOutCityBuildingCards();
 
 				IsCityboardReady = true;
 			}
+
+			if(CityBuildingCardStack.transform.childCount <= 0)
+			{
+				FinishAndResetStep4();
+			}
 		}
 
-
-		bool IsHoldingCityBuildingCard;
-
-		Transform HoldingCityBuildingCard;
-		Vector3 HoldingCityBuildingCardInitialPos;
-
-		void PutCityBuildingCards()
+		void FinishAndResetStep4()
 		{
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			origin = ray.origin;
-			dir = ray.direction;
+			CityBuildingCardStack.RetakeCityBuildingCards();
+			IsCityboardReady = false;
 
-			RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir);
+			ProcessFinishStep(3);
 
-			if (Input.GetMouseButtonDown(0))
-			{
-				for (int i = 0; i < hits.Length; i++)
-				{
-
-					if (hits[i].collider != null)
-					{
-						//Debug.Log(hits[i].collider.name + " " + IsHoldingCityBuildingCard);
-
-						if (!IsHoldingCityBuildingCard)
-						{
-							if (hits[i].collider.tag == "CityBuildingCard")
-							{
-								HoldingCityBuildingCard = hits[i].collider.transform;
-								HoldingCityBuildingCardInitialPos = HoldingCityBuildingCard.position;
-
-								IsHoldingCityBuildingCard = true;
-							}
-						}
-						else
-						{
-							if (hits[i].collider.tag == "CityTile")
-							{
-								Debug.Log("Attach " + hits[i].collider.transform.parent.name);
-
-								//빌딩 타일에 붙이기
-								IsHoldingCityBuildingCard = false;
-
-								HoldingCityBuildingCard.transform.parent = hits[i].collider.transform.parent.transform;
-								HoldingCityBuildingCard.position = hits[i].collider.transform.position;
-
-								//TODO: Put Data in StageData:cityBoard
-								//StageData.cityBoard[hits[i].collider.transform.parent.name] = int.Parse(HoldingCityBuildingCard.name);
-								HoldingCityBuildingCard = null;
-
-								if (CityBuildingCardHouse.transform.childCount <= 0)
-								{
-									ProcessFinishStep(3);
-									ProcessFinishRound();
-								}
-
-							}
-							else if(hits.Length == 1)
-							{
-								IsHoldingCityBuildingCard = false;
-
-								HoldingCityBuildingCard.position = HoldingCityBuildingCardInitialPos;
-								HoldingCityBuildingCard = null;
-							}
-						}
-					}
-				}
-			}
-
-			if (IsHoldingCityBuildingCard)
-			{
-				if(HoldingCityBuildingCard.parent == CityBuildingCardHouse)
-					HoldingCityBuildingCard.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, transform.position.z);
-			}
+			ProcessFinishRound();
 		}
 
 	#endregion
@@ -465,8 +306,7 @@ public class GamePlayer : MonoBehaviour
 					ProcessFinishStep(i);
 				else
 				{
-					ProcessFinishStep(i);
-					ProcessFinishRound();
+					FinishAndResetStep4();
 				}
 			}
 		}
