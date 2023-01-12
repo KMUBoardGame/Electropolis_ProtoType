@@ -7,68 +7,105 @@ public class GamePlayer : MonoBehaviour
 {
 	#region Initialization
 
-	[SerializeField]
-	GameDataManager GameData;
-
-	[SerializeField]
-	StageDataManager StageData;
-
-	[SerializeField]
-	GameObject GameFinisher;
-	bool[] IsStepFinished;
+	[SerializeField]	GameDataManager GameData;
+	[SerializeField]	StageDataManager StageData;
+	[SerializeField]	GameObject GameFinisher;
 
 	[Tooltip("Steps that are using in your game. After finishing current step, the next step will be appeared in the screen.")]
-	[SerializeField]
-	List<GameObject> StepMaterials;
+	List<GameObject> UsingStates;
 
+	enum State
+	{
+		Dice, BuildingCard, AreaCard, CityBoard
+	};
+
+
+	//State currentState;
+	List<State> currentStates;
+	GameObject ActiveState;
 
 
 	private void Awake()
 	{
-		IsStepFinished = new bool[GameData.MaxStep];
+		UsingStates = new List<GameObject>();
+		currentStates = new List<State>();
+		GameFinisher.SetActive(false);
 	}
+
 	private void Start()
 	{
-		#region DONOTTOUCH
-		for (int i = 0; i < GameData.MaxStep; i++)
+		Initialize();
+
+	}
+
+	void Initialize()
+	{
+		InitializeStates();
+
+		/*
+		 * 
+		 */
+		IsCityBuildingCardsReady = false;
+		/*
+		 * 
+		 */
+
+		SetState(State.Dice);
+	}
+
+	void InitializeStates()
+	{
+		//사용할 States들을 추가
+		UsingStates.Add(DiceState);
+		UsingStates.Add(BuildingCardState);
+		UsingStates.Add(AreaCardState);
+		UsingStates.Add(CityboardState);
+
+		for (int i = 0; i < UsingStates.Count; i++)
 		{
-			IsStepFinished[i] = false;
-			StepMaterials[i].SetActive(false);
+			UsingStates[i].SetActive(false);
 		}
 
-		StepMaterials[0].SetActive(true);
-		GameFinisher.SetActive(false);
-		#endregion
-
-		IsCityboardReady = false;
 	}
 
 	#endregion
 
 
+	/// <summary>
+	/// 게임 종료 조건을 만족했는가
+	/// </summary>
+	bool isFinished()
+	{
+		//TODO: 시티보드가 다 찼을 때 -> 추가
+		return (StageData.CurrentRound <= GameData.MaxRound);
+	}
+
 	private void Update()
 	{
-		if(StageData.CurrentRound <= GameData.MaxRound)
+		if(isFinished())
 		{
-			switch (StageData.CurrentStep)
+			for(int index = 0; index < currentStates.Count; index++)
 			{
-				case 1:
-					Step1();
+				switch (currentStates[index])
+				{
+					case State.Dice:
+						RunDiceState();
 
-					break;
-				case 2:
-					Step2();
+						break;
+					case State.BuildingCard:
+						RunBuildingCardState();
 
-					break;
-				case 3:
-					Step3();
+						break;
+					case State.AreaCard:
+						RunAreaCardState();
 
-					break;
-				case 4:
-					Step4();
-					PassStepForTest(3);
+						break;
+					case State.CityBoard:
+						RunCityboardState();
+						PassStepForTest(3);
 
-					break;
+						break;
+				}
 			}
 		}
 		else
@@ -99,7 +136,6 @@ public class GamePlayer : MonoBehaviour
 
 		return false;
 	}
-
 	Transform GetClickObjWithTag(string clickObjTag)
 	{
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -121,38 +157,42 @@ public class GamePlayer : MonoBehaviour
 	}
 
 
-	#region Step 1
+	#region DiceState
 
-	[Header("Step1 Materials")]
-	[SerializeField]
-	Transform Dice;
+	[Header("DiceState Materials")]
+	[SerializeField] GameObject DiceState;
 
-	void Step1()
+	[SerializeField] Transform Dice;
+
+	void RunDiceState()
 	{
-		if(CheckClickWithTag(Dice.tag))
+		if(CheckClickWithTag("Dice"))
 		{
 			StageData.diceNum = Dice.GetComponent<Dice>().RollTheDice();
+			Debug.Log(StageData.diceNum);
 
-			ProcessFinishStep(0);
+		    UpdateDiceState();
 		}
+	}
+
+	void UpdateDiceState()
+	{
+		currentStates.Clear();
+		SetState(State.BuildingCard);
 	}
 
 	#endregion
 
-	#region Step 2
+	#region BuildingCardState
 
 
-	[Header("Step2 Materials")]
+	[Header("BuildingCardState Materials")]
+	[SerializeField] GameObject BuildingCardState;
+
 	[SerializeField] BuildingCardStack BuildingCardStack;
 
 
-	void Step2()
-	{
-		ChooseBuildingCards();
-	}
-
-
-	void ChooseBuildingCards()
+	void RunBuildingCardState()
 	{
 		Transform ChosenBuildingCard = GetClickObjWithTag("BuildingCard");
 
@@ -163,125 +203,129 @@ public class GamePlayer : MonoBehaviour
 
 			if (StageData.buildingCards.Count >= StageData.diceNum)
 			{
-				FinishAndResetStep2();
+				UpdateBuildingCardState();
 			}
 		}
 	}
 
-	void FinishAndResetStep2()
+	void UpdateBuildingCardState()
 	{
-		//현재 스텝 끝내기
-		ProcessFinishStep(1);
-
-		//스텝 이후 업데이트 해야 할 내용: 뽑히지 않은 건물카드 삭제 후 새로운 건물카드들 재분배
+		//다음 스텝으로 이동하기 전, 정리 작업
 		BuildingCardStack.RetakeBuildingCards();
 		BuildingCardStack.MixBuildingCards();
+
+		//다음 스텝으로 이동
+		currentStates.Clear();
+		SetState(State.AreaCard);
 	}
+
 
 	#endregion
 
-	#region Step 3
+	#region AreaCardState
 
-	[Header("Step3 Materials")]
+	[Header("AreaCardState Materials")]
+	[SerializeField] GameObject AreaCardState;
+
 	[SerializeField] AreaCardStack AreaCardStack;
-	List<string> CardTypePerRound = new List<string> { "A", "A", "B", "B", "C", "C" };
 	[SerializeField] Stamp Stamp;
 
-	void Step3()
+	List<string> CardTypePerRound = new List<string> { "A", "A", "B", "B", "C", "C" };
+
+	void RunAreaCardState()
 	{
 		if(Stamp.ClickedObj != null)
 		{
 			Transform ClickedAreaCard = Stamp.ClickedObj;
-
 			StageData.pickedAreaCards.Add(ClickedAreaCard.name);
 
-			FinishAndResetStep3();
+			UpdateAreaCardState();
 		}
 	}
 
-	void FinishAndResetStep3()
+	void UpdateAreaCardState()
 	{
-		ProcessFinishStep(2);
-
 		AreaCardStack.RetakeAreaCards();
 		if (StageData.CurrentRound < GameData.MaxRound)
 			AreaCardStack.HandOutCardStack(CardTypePerRound[StageData.CurrentRound]);
+
+		currentStates.Clear();
+		SetState(State.CityBoard);
 	}
 
 	#endregion
 
-	#region Step 4
+	#region CityBuildingCardState
 
-		[Header("Step4 Materials")]
-		[SerializeField]
-		CityBuildingCardStack CityBuildingCardStack;
+	[Header("CityboardState Materials")]
+	[SerializeField] GameObject CityboardState;
+	[SerializeField] CityBuildingCardStack CityBuildingCardStack;
 
-		bool IsCityboardReady;
-		void Step4()
-		{
-			if (!IsCityboardReady)
-			{
-				CityBuildingCardStack.HandOutCityBuildingCards();
-
-				IsCityboardReady = true;
-			}
-
-			if(CityBuildingCardStack.transform.childCount <= 0)
-			{
-				FinishAndResetStep4();
-			}
-		}
-
-		void FinishAndResetStep4()
-		{
-			CityBuildingCardStack.RetakeCityBuildingCards();
-			IsCityboardReady = false;
-
-			ProcessFinishStep(3);
-
-			ProcessFinishRound();
-		}
-
-	#endregion
-
-
-	/// <summary>
-	/// 한 스텝이 끝날 때마다 호출하는 함수. 해당 스텝이 끝난지 체크하는 bool을 true로 변경, 다음 스텝으로 창을 변경
-	/// </summary>
-	/// <param name="FinishStep"></param>
-	void ProcessFinishStep(int FinishStep)
+	bool IsCityBuildingCardsReady;
+	void RunCityboardState()
 	{
-		IsStepFinished[FinishStep] = true;
-		StepMaterials[FinishStep].SetActive(false);
+		if (!IsCityBuildingCardsReady)
+		{
+			CityBuildingCardStack.HandOutCityBuildingCards();
 
-		if (FinishStep < GameData.MaxStep - 1)
-		{
-			StepMaterials[FinishStep + 1].SetActive(true);
-			StageData.CurrentStep++;
+			IsCityBuildingCardsReady = true;
 		}
-		else
+
+		if(CityBuildingCardStack.transform.childCount <= 0)
 		{
-			//마지막 스텝일 경우 스텝 1의 창을 켜고 스텝 데이터를 1로 변경
-			StepMaterials[0].SetActive(true);
-			StageData.CurrentStep = 1;
+			UpdateCityboardState();
 		}
 	}
+
+	void UpdateCityboardState()
+	{
+		CityBuildingCardStack.RetakeCityBuildingCards();
+		IsCityBuildingCardsReady = false;
+
+		FinishRound();
+
+		currentStates.Clear();
+		SetState(State.Dice);
+	}
+
+	#endregion
+
+
+	//SetState -> 현재 State 해제 후 매개변수 State On
+	void SetState(State nextState)
+	{
+		if(ActiveState)	ActiveState.SetActive(false);
+
+		switch(nextState)
+		{
+			case State.Dice:
+				ActiveState = DiceState;
+				break;
+			case State.BuildingCard:
+				ActiveState = BuildingCardState;
+				break;
+			case State.AreaCard:
+				ActiveState = AreaCardState;
+				break;
+			case State.CityBoard:
+				ActiveState = CityboardState;
+				break;
+		}
+
+		currentStates.Add(nextState);
+		ActiveState.SetActive(true);
+	}
+
 
 	/// <summary>
 	/// 한 라운드가 끝날 때마다 호출하는 함수. 현재 라운드의 어떤 스텝이 끝났는지 체크하는 리스트 초기화, 현재 라운드+=1
 	/// </summary>
-	void ProcessFinishRound()
+	void FinishRound()
 	{
-		for (int i = 0; i < GameData.MaxStep; i++)
-		{
-			IsStepFinished[i] = false;
-		}
-
 		StageData.buildingCards.Clear();
 
-		StageData.areaCards.Clear();
-
-		IsCityboardReady = false;
+		//StageData.areaCards.Clear();
+		//IsCityBuildingCardsReady = false;
 
 		StageData.CurrentRound++;
 	}
@@ -302,12 +346,7 @@ public class GamePlayer : MonoBehaviour
 		{
 			if (hit.collider != null && hit.collider.name == "StepPass")
 			{
-				if(i != GameData.MaxStep-1)
-					ProcessFinishStep(i);
-				else
-				{
-					FinishAndResetStep4();
-				}
+				UpdateCityboardState();
 			}
 		}
 	}

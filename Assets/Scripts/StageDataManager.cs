@@ -42,7 +42,7 @@ public class StageDataManager : MonoBehaviour
 		//These should be initialized After Every Round
 		//매 라운드가 끝날 때마다 초기화되는 변수
 		public int diceNum;
-		public List<GameObject> areaCards;
+		//public List<GameObject> areaCards;
 		public List<string> buildingCards;
 
 	#endregion
@@ -53,7 +53,7 @@ public class StageDataManager : MonoBehaviour
 		currentRound = 1;
 		currentStep = 1;
 
-		areaCards = new List<GameObject>();
+		//areaCards = new List<GameObject>();
 		cityBoard = new Dictionary<string, int?>();
 	}
 }

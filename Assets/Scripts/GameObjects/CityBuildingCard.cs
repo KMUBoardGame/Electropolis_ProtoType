@@ -50,15 +50,19 @@ public class CityBuildingCard : MonoBehaviour
 			if (hits[i].collider != null && hits[i].transform.tag == "CityTile")
 			{
 				ClickedObj = hits[i].transform;
-				Debug.Log(transform.name + " attached to " + ClickedObj);
+				Debug.Log(transform.name + " attached to " + ClickedObj.parent.name);
 			}
 		}
 
 		if(!ClickedObj) transform.position = initialPos;
+
 		else
 		{
-			transform.position = ClickedObj.position;
+			transform.position = ClickedObj.Find("CityTileFront").position;
 			transform.parent = ClickedObj;
+
+			//시티타일에 카드를 놓았을 때에, 카드정보를 시티타일에 전달
+			ClickedObj.GetComponent<CityTile>().SetCityBuildingCard(gameObject);
 		}
 	}
 }
