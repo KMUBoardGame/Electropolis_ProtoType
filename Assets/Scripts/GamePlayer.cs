@@ -20,15 +20,13 @@ public class GamePlayer : MonoBehaviour
 	};
 
 
-	//State currentState;
-	List<State> currentStates;
+	State currentState;
 	GameObject ActiveState;
 
 
 	private void Awake()
 	{
 		UsingStates = new List<GameObject>();
-		currentStates = new List<State>();
 		GameFinisher.SetActive(false);
 	}
 
@@ -84,28 +82,25 @@ public class GamePlayer : MonoBehaviour
 	{
 		if(isFinished())
 		{
-			for(int index = 0; index < currentStates.Count; index++)
+			switch (currentState)
 			{
-				switch (currentStates[index])
-				{
-					case State.Dice:
-						RunDiceState();
+				case State.Dice:
+					RunDiceState();
 
-						break;
-					case State.BuildingCard:
-						RunBuildingCardState();
+					break;
+				case State.BuildingCard:
+					RunBuildingCardState();
 
-						break;
-					case State.AreaCard:
-						RunAreaCardState();
+					break;
+				case State.AreaCard:
+					RunAreaCardState();
 
-						break;
-					case State.CityBoard:
-						RunCityboardState();
-						PassStepForTest(3);
+					break;
+				case State.CityBoard:
+					RunCityboardState();
+					PassStepForTest(3);
 
-						break;
-				}
+					break;
 			}
 		}
 		else
@@ -177,7 +172,6 @@ public class GamePlayer : MonoBehaviour
 
 	void UpdateDiceState()
 	{
-		currentStates.Clear();
 		SetState(State.BuildingCard);
 	}
 
@@ -215,7 +209,6 @@ public class GamePlayer : MonoBehaviour
 		BuildingCardStack.MixBuildingCards();
 
 		//다음 스텝으로 이동
-		currentStates.Clear();
 		SetState(State.AreaCard);
 	}
 
@@ -249,7 +242,6 @@ public class GamePlayer : MonoBehaviour
 		if (StageData.CurrentRound < GameData.MaxRound)
 			AreaCardStack.HandOutCardStack(CardTypePerRound[StageData.CurrentRound]);
 
-		currentStates.Clear();
 		SetState(State.CityBoard);
 	}
 
@@ -284,7 +276,6 @@ public class GamePlayer : MonoBehaviour
 
 		FinishRound();
 
-		currentStates.Clear();
 		SetState(State.Dice);
 	}
 
@@ -312,7 +303,7 @@ public class GamePlayer : MonoBehaviour
 				break;
 		}
 
-		currentStates.Add(nextState);
+		currentState = nextState;
 		ActiveState.SetActive(true);
 	}
 

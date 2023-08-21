@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class AreaCard : MonoBehaviour
 {
-	string cardType;
+    #region Initialization
+
+    string cardType;
 	public string CardType
 	{
 		get { return cardType;  }
@@ -19,15 +21,27 @@ public class AreaCard : MonoBehaviour
 	Transform FrontSide;
 	Transform BackSide;
 
+
+	string cardSide;
+
 	private void Start()
 	{
-		// ?: Front, Back 저장 후 불러오기가 안 됨
+		Initialize();
+	}
+
+    #endregion
+
+	void Initialize()
+    {
 		FrontSide = transform.GetChild(0);
 		BackSide = transform.GetChild(1);
+
+		BackSide.gameObject.SetActive(false);
+		cardSide = "Front";
 	}
 
 
-	public void InitializeAreaCardInfo(string _CardType, int _CardNum)
+    public void InitializeAreaCardInfo(string _CardType, int _CardNum)
 	{
 		cardType = _CardType;
 		cardNum = _CardNum;
@@ -39,4 +53,28 @@ public class AreaCard : MonoBehaviour
 	{
 		transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = cardSprite;
 	}
+
+
+    private void OnMouseDown()
+    {
+		FlipAreaCard();
+	}
+
+    public void FlipAreaCard()
+    {
+		if(cardSide == "Front")
+        {
+			BackSide.gameObject.SetActive(true);
+			FrontSide.gameObject.SetActive(false);
+
+			cardSide = "Back";
+		}
+		else if(cardSide == "Back")
+        {
+			FrontSide.gameObject.SetActive(true);
+			BackSide.gameObject.SetActive(false);
+
+			cardSide = "Front";
+		}
+    }
 }
